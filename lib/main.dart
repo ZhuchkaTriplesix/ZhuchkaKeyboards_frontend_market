@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'auth/auth_session.dart';
 import 'auth/session_store.dart';
 import 'widgets/auth_modal.dart';
 
@@ -32,8 +33,11 @@ class StorefrontHome extends StatefulWidget {
 }
 
 class _StorefrontHomeState extends State<StorefrontHome> {
+  final _authSession = AuthSessionService();
+
   bool _ready = false;
   bool _loggedIn = false;
+  String? _userEmail;
 
   @override
   void initState() {
@@ -41,12 +45,25 @@ class _StorefrontHomeState extends State<StorefrontHome> {
     _reloadSession();
   }
 
+  @override
+  void dispose() {
+    _authSession.dispose();
+    super.dispose();
+  }
+
   Future<void> _reloadSession() async {
-    final ok = await SessionStore.hasAccessToken();
+    var still = await SessionStore.hasAccessToken();
+    String? email;
+    if (still) {
+      final profile = await _authSession.loadProfile();
+      email = profile?.email;
+      still = await SessionStore.hasAccessToken();
+    }
     if (!mounted) return;
     setState(() {
-      _loggedIn = ok;
+      _loggedIn = still;
       _ready = true;
+      _userEmail = still ? email : null;
     });
   }
 
@@ -58,7 +75,10 @@ class _StorefrontHomeState extends State<StorefrontHome> {
   Future<void> _logout() async {
     await SessionStore.clear();
     if (!mounted) return;
-    setState(() => _loggedIn = false);
+    setState(() {
+      _loggedIn = false;
+      _userEmail = null;
+    });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Вы вышли из аккаунта')),
     );
@@ -102,11 +122,19 @@ class _StorefrontHomeState extends State<StorefrontHome> {
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
+                if (_loggedIn && (_userEmail != null && _userEmail!.isNotEmpty)) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    _userEmail!,
+                    style: Theme.of(context).textTheme.titleMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
                 const SizedBox(height: 12),
                 Text(
                   _loggedIn
-                      ? 'Сессия сохранена локально (access / refresh token). Дальше — каталог и корзина.'
-                      : 'Нажмите «Войти» — модальное окно (не шторка). Google и Telegram при настройке auth.',
+                      ? 'Сессия: токены в локальном хранилище; профиль с auth-сервера (userinfo).'
+                      : 'Нажмите «Войти» — модальное окно. Google и Telegram при настройке auth.',
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
