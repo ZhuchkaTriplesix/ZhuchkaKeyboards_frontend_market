@@ -40,3 +40,7 @@ Output: `build/web/`.
 ```bash
 flutter test
 ```
+
+## CI (GitHub Actions)
+
+On push/PR to `dev`, `main`, or `master`, `.github/workflows/flutter_ci.yml` runs `flutter analyze`, `flutter test`, and `flutter build web --release` on Ubuntu with the stable SDK.
