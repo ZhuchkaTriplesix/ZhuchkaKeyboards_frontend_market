@@ -31,6 +31,11 @@ class SessionStore {
     return prefs.getString(_accessKey);
   }
 
+  static Future<String?> refreshToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_refreshKey);
+  }
+
   static Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_accessKey);
