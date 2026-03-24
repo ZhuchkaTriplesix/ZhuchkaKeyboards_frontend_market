@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'auth/auth_session.dart';
 import 'auth/session_store.dart';
+import 'theme/market_theme.dart';
 import 'widgets/auth_modal.dart';
 
 void main() {
@@ -16,10 +17,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Zhuchka Market',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2D2640)),
-        useMaterial3: true,
-      ),
+      themeMode: ThemeMode.dark,
+      theme: buildZhuchkaMarketTheme(),
       home: const StorefrontHome(),
     );
   }
