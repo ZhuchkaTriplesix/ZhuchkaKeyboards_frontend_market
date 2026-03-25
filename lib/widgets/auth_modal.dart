@@ -12,6 +12,7 @@ Future<void> showAuthModal(BuildContext context) {
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
+    barrierLabel: 'Закрыть',
     builder: (ctx) => const _AuthDialog(),
   );
 }
@@ -119,40 +120,50 @@ class _AuthDialogState extends State<_AuthDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Вход', style: theme.textTheme.headlineSmall),
-                const SizedBox(height: 8),
-                Text(
-                  'Войдите через Google или Telegram. Сервер: Zhuchka Auth (federated).',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+    return Semantics(
+      namesRoute: true,
+      label: 'Вход в аккаунт',
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text('Вход', style: theme.textTheme.headlineSmall),
                   ),
-                ),
-                const SizedBox(height: 20),
-                if (_error != null) ...[
-                  Material(
-                    color: theme.colorScheme.errorContainer,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(
-                        _error!,
-                        style: TextStyle(color: theme.colorScheme.onErrorContainer),
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Войдите через Google или Telegram. Сервер: Zhuchka Auth (federated).',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
+                  const SizedBox(height: 20),
+                  if (_error != null) ...[
+                    Semantics(
+                      liveRegion: true,
+                      container: true,
+                      child: Material(
+                        color: theme.colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            _error!,
+                            style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 FilledButton.icon(
                   onPressed: _busy ? null : _onGoogle,
                   icon: const Icon(Icons.login, size: 22),
@@ -176,7 +187,11 @@ class _AuthDialogState extends State<_AuthDialog> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (_busy) const Center(child: CircularProgressIndicator()),
+                if (_busy)
+                  Semantics(
+                    label: 'Выполняется вход',
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
@@ -188,6 +203,7 @@ class _AuthDialogState extends State<_AuthDialog> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

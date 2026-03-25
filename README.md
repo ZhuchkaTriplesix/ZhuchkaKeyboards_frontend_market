@@ -10,6 +10,8 @@ Storefront UI. This repo targets **web only** (no mobile/desktop platforms in th
 
 **Состояния UI (loading / empty / error):** `lib/widgets/market_async_views.dart` — `MarketLoadingView`, `MarketEmptyView`, `MarketErrorView` (см. `docs/frontend-requirements.md` §5).
 
+**Доступность:** подсказки у пунктов нижней навигации (`MarketShell`), семантика модального входа (`auth_modal.dart`: заголовок, `liveRegion` для ошибок, `barrierLabel`), ограничение масштаба текста в `MaterialApp.router` builder (0.85–2.5) — см. `docs/frontend-requirements.md` §6.
+
 ## Configuration (build-time)
 
 Переменные задаются через `--dart-define` (и при `flutter build web`):
