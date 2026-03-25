@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// App chrome: primary destinations + [child] from [GoRouter] [ShellRoute].
 class MarketShell extends StatelessWidget {
   const MarketShell({
@@ -20,6 +22,7 @@ class MarketShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Column(
       children: [
         Expanded(child: child),
@@ -35,21 +38,24 @@ class MarketShell extends StatelessWidget {
                 context.go('/cart');
             }
           },
-          destinations: const [
+          destinations: [
             NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
-              label: 'Главная',
+              icon: const Icon(Icons.home_outlined),
+              selectedIcon: const Icon(Icons.home),
+              label: l10n.navHome,
+              tooltip: l10n.navHomeTooltip,
             ),
             NavigationDestination(
-              icon: Icon(Icons.storefront_outlined),
-              selectedIcon: Icon(Icons.storefront),
-              label: 'Каталог',
+              icon: const Icon(Icons.storefront_outlined),
+              selectedIcon: const Icon(Icons.storefront),
+              label: l10n.navCatalog,
+              tooltip: l10n.navCatalogTooltip,
             ),
             NavigationDestination(
-              icon: Icon(Icons.shopping_cart_outlined),
-              selectedIcon: Icon(Icons.shopping_cart),
-              label: 'Корзина',
+              icon: const Icon(Icons.shopping_cart_outlined),
+              selectedIcon: const Icon(Icons.shopping_cart),
+              label: l10n.navCart,
+              tooltip: l10n.navCartTooltip,
             ),
           ],
         ),

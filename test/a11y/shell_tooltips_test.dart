@@ -8,10 +8,12 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
 
-  testWidgets('Storefront shows title and login', (WidgetTester tester) async {
+  testWidgets('bottom nav exposes tooltips for screen readers', (tester) async {
     await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
-    expect(find.text('Zhuchka Market'), findsWidgets);
-    expect(find.text('Войти'), findsWidgets);
+
+    expect(find.byTooltip('Витрина — главная страница'), findsOneWidget);
+    expect(find.byTooltip('Каталог товаров'), findsOneWidget);
+    expect(find.byTooltip('Корзина покупок'), findsOneWidget);
   });
 }

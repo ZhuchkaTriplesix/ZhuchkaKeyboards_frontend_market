@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../auth/auth_api.dart';
 import '../auth/session_store.dart';
 import '../config/app_config.dart';
+import '../l10n/app_localizations.dart';
 import 'telegram_iframe_dialog.dart';
 
 /// Centered modal dialog (not bottom sheet) for storefront login.
@@ -12,6 +13,7 @@ Future<void> showAuthModal(BuildContext context) {
   return showDialog<void>(
     context: context,
     barrierDismissible: true,
+    barrierLabel: AppLocalizations.of(context).authBarrierDismiss,
     builder: (ctx) => const _AuthDialog(),
   );
 }
@@ -39,14 +41,14 @@ class _AuthDialogState extends State<_AuthDialog> {
     if (!mounted) return;
     Navigator.of(context).pop(true);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Вы вошли в аккаунт')),
+      SnackBar(content: Text(AppLocalizations.of(context).snackSignedIn)),
     );
   }
 
   Future<void> _onGoogle() async {
     final clientId = AppConfig.googleClientId.trim();
     if (clientId.isEmpty) {
-      setState(() => _error = 'Задайте GOOGLE_CLIENT_ID при сборке (--dart-define).');
+      setState(() => _error = AppLocalizations.of(context).authErrorGoogleClientId);
       return;
     }
     setState(() {
@@ -68,7 +70,7 @@ class _AuthDialogState extends State<_AuthDialog> {
       if (idToken == null || idToken.isEmpty) {
         setState(() {
           _busy = false;
-          _error = 'Google не вернул id_token (проверьте meta / client ID для Web).';
+          _error = AppLocalizations.of(context).authErrorNoIdToken;
         });
         return;
       }
@@ -105,7 +107,7 @@ class _AuthDialogState extends State<_AuthDialog> {
   Future<void> _openTelegram() async {
     final bot = AppConfig.telegramBotUsername.trim();
     if (bot.isEmpty) {
-      setState(() => _error = 'Задайте TELEGRAM_BOT_USERNAME (--dart-define).');
+      setState(() => _error = AppLocalizations.of(context).authErrorTelegramBot);
       return;
     }
     await showTelegramLoginDialog(
@@ -118,45 +120,56 @@ class _AuthDialogState extends State<_AuthDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text('Вход', style: theme.textTheme.headlineSmall),
-                const SizedBox(height: 8),
-                Text(
-                  'Войдите через Google или Telegram. Сервер: Zhuchka Auth (federated).',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+    return Semantics(
+      namesRoute: true,
+      label: l10n.authTitle,
+      child: Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Semantics(
+                    header: true,
+                    child: Text(l10n.authTitle, style: theme.textTheme.headlineSmall),
                   ),
-                ),
-                const SizedBox(height: 20),
-                if (_error != null) ...[
-                  Material(
-                    color: theme.colorScheme.errorContainer,
-                    borderRadius: BorderRadius.circular(8),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Text(
-                        _error!,
-                        style: TextStyle(color: theme.colorScheme.onErrorContainer),
-                      ),
+                  const SizedBox(height: 8),
+                  Text(
+                    l10n.authSubtitle,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 16),
-                ],
+                  const SizedBox(height: 20),
+                  if (_error != null) ...[
+                    Semantics(
+                      liveRegion: true,
+                      container: true,
+                      child: Material(
+                        color: theme.colorScheme.errorContainer,
+                        borderRadius: BorderRadius.circular(8),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(
+                            _error!,
+                            style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
                 FilledButton.icon(
                   onPressed: _busy ? null : _onGoogle,
                   icon: const Icon(Icons.login, size: 22),
-                  label: const Text('Продолжить с Google'),
+                  label: Text(l10n.authContinueGoogle),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF1F1F1F),
@@ -168,7 +181,7 @@ class _AuthDialogState extends State<_AuthDialog> {
                 FilledButton.icon(
                   onPressed: _busy ? null : _openTelegram,
                   icon: const Icon(Icons.send, size: 22),
-                  label: const Text('Войти через Telegram'),
+                  label: Text(l10n.authContinueTelegram),
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF229ED9),
                     foregroundColor: Colors.white,
@@ -176,18 +189,23 @@ class _AuthDialogState extends State<_AuthDialog> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                if (_busy) const Center(child: CircularProgressIndicator()),
+                if (_busy)
+                  Semantics(
+                    label: l10n.authBusySemantics,
+                    child: const Center(child: CircularProgressIndicator()),
+                  ),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: _busy ? null : () => Navigator.of(context).pop(),
-                    child: const Text('Закрыть'),
+                    child: Text(l10n.authClose),
                   ),
                 ),
               ],
             ),
           ),
         ),
+      ),
       ),
     );
   }

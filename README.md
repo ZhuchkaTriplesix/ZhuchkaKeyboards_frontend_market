@@ -4,7 +4,15 @@ Storefront UI. This repo targets **web only** (no mobile/desktop platforms in th
 
 **UI spec:** [`docs/frontend-requirements.md`](https://github.com/ZhuchkaTriplesix/ZhuchkaKeyboards/blob/dev/docs/frontend-requirements.md) in the monorepo — Material 3, OLED scaffold `#000000`, shared tokens in `lib/theme/market_theme.dart` (`buildZhuchkaMarketTheme()`).
 
-**Routing:** [`go_router`](https://pub.dev/packages/go_router) + shell (`lib/widgets/market_shell.dart`). Paths: `/` (витрина), `/catalog` и `/cart` — заглушки до backend (см. issue #7).
+**Routing:** [`go_router`](https://pub.dev/packages/go_router) + shell (`lib/widgets/market_shell.dart`). Paths: `/` (витрина), `/catalog` и `/cart` — заглушки до storefront API (см. issue #7).
+
+**HTTP:** [`dio`](https://pub.dev/packages/dio) — `createMarketDio()` (`lib/http/market_dio.dart`): таймауты, retry только для **GET** при сетевых сбоях (`RetryInterceptor`), ошибки OAuth → `AuthApiException` (`lib/http/dio_error_mapper.dart`). Прямые вызовы auth API — `AuthApi`. Для catalog/commerce — `createServiceDio()` (`lib/http/service_dio.dart`); при заданных `CATALOG_BASE_URL` / `COMMERCE_BASE_URL` экраны каталога и корзины проверяют `GET /health/live` и показывают состояние «сервис доступен, API витрины ещё нет».
+
+**Состояния UI (loading / empty / error):** `lib/widgets/market_async_views.dart` — `MarketLoadingView`, `MarketEmptyView`, `MarketErrorView` (см. `docs/frontend-requirements.md` §5).
+
+**Доступность:** подсказки у пунктов нижней навигации (`MarketShell`), семантика модального входа (`auth_modal.dart`: заголовок, `liveRegion` для ошибок, `barrierLabel`), ограничение масштаба текста в `MaterialApp.router` builder (0.85–2.5) — см. `docs/frontend-requirements.md` §6.
+
+**Локализация:** шаблоны в `lib/l10n/app_en.arb` и `app_ru.arb`; кодогенерация через `flutter gen-l10n` (в `pubspec.yaml` задано `generate: true`). По умолчанию интерфейс на **русском**; если в списке локалей браузера есть английский, выбирается **английский** (`localeListResolutionCallback` в `lib/main.dart`). После правок ARB перегенерируйте: `flutter gen-l10n`.
 
 ## Configuration (build-time)
 
@@ -16,11 +24,13 @@ Storefront UI. This repo targets **web only** (no mobile/desktop platforms in th
 | `OAUTH_CLIENT_ID` | Публичный client_id для refresh_token и federated login | `zhuchka-market-web` |
 | `GOOGLE_CLIENT_ID` | Web client ID из Google Cloud (OAuth 2.0 → Web) | пусто |
 | `TELEGRAM_BOT_USERNAME` | Имя бота без `@` для Telegram Login (iframe) | пусто |
+| `CATALOG_BASE_URL` | Базовый URL catalog-сервиса (проверка `/health/live` на экране каталога) | пусто |
+| `COMMERCE_BASE_URL` | Базовый URL commerce-сервиса (проверка `/health/live` на экране корзины) | пусто |
 
 Пример:
 
 ```bash
-flutter run -d chrome --dart-define=AUTH_BASE_URL=https://auth.example.com --dart-define=GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com --dart-define=TELEGRAM_BOT_USERNAME=my_bot
+flutter run -d chrome --dart-define=AUTH_BASE_URL=https://auth.example.com --dart-define=GOOGLE_CLIENT_ID=xxx.apps.googleusercontent.com --dart-define=TELEGRAM_BOT_USERNAME=my_bot --dart-define=CATALOG_BASE_URL=http://127.0.0.1:8001 --dart-define=COMMERCE_BASE_URL=http://127.0.0.1:8002
 ```
 
 Для Google Sign-In в `web/index.html` в мета-теге `google-signin-client_id` должен быть тот же Web client ID.

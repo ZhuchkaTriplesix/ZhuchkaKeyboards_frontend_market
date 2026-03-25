@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,7 +9,7 @@ void main() {
   SharedPreferences.setMockInitialValues({});
 
   testWidgets('shell NavigationBar opens catalog placeholder', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
     expect(find.text('Витрина для покупателей'), findsOneWidget);
 
@@ -16,28 +17,30 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Каталог'), findsWidgets);
+    expect(find.text('Каталог скоро здесь'), findsOneWidget);
     expect(
-      find.text('Раздел каталога — заглушка до подключения backend.'),
+      find.textContaining('backend API'),
       findsOneWidget,
     );
   });
 
   testWidgets('shell NavigationBar opens cart placeholder', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Корзина'));
     await tester.pumpAndSettle();
 
     expect(find.text('Корзина'), findsWidgets);
+    expect(find.text('Корзина пуста'), findsOneWidget);
     expect(
-      find.textContaining('Корзина — заглушка'),
+      find.textContaining('commerce backend'),
       findsOneWidget,
     );
   });
 
   testWidgets('shell returns to home from catalog', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Каталог'));
     await tester.pumpAndSettle();
