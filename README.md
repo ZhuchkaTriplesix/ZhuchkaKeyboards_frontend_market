@@ -6,6 +6,8 @@ Storefront UI. This repo targets **web only** (no mobile/desktop platforms in th
 
 **Routing:** [`go_router`](https://pub.dev/packages/go_router) + shell (`lib/widgets/market_shell.dart`). Paths: `/` (витрина), `/catalog` и `/cart` — заглушки до backend (см. issue #7).
 
+**HTTP:** [`dio`](https://pub.dev/packages/dio) — `createMarketDio()` (`lib/http/market_dio.dart`): таймауты, retry только для **GET** при сетевых сбоях (`RetryInterceptor`), ошибки OAuth → `AuthApiException` (`lib/http/dio_error_mapper.dart`). Прямые вызовы auth API — `AuthApi`.
+
 ## Configuration (build-time)
 
 Переменные задаются через `--dart-define` (и при `flutter build web`):
