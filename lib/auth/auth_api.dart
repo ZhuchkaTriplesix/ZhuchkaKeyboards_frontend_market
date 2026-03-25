@@ -1,38 +1,53 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 import '../config/app_config.dart';
+import '../http/dio_error_mapper.dart';
+import '../http/market_dio.dart';
+import 'auth_api_exception.dart';
 
-/// Calls Zhuchka auth-service (federated login, userinfo, refresh).
+export 'auth_api_exception.dart';
+
+/// Calls Zhuchka auth-service (federated login, userinfo, refresh) via [Dio].
 class AuthApi {
-  AuthApi({http.Client? httpClient}) : _http = httpClient ?? http.Client();
+  AuthApi({Dio? dio}) : _dio = dio ?? createMarketDio(), _ownsDio = dio == null;
 
-  final http.Client _http;
+  final Dio _dio;
+  final bool _ownsDio;
 
-  Uri _u(String path) => Uri.parse('${AppConfig.authBaseUrl}$path');
-
-  Map<String, dynamic> _decodeJsonMap(http.Response res) {
-    final raw = res.body;
-    if (raw.isEmpty) {
+  Map<String, dynamic> _decodeSuccess(Response<dynamic> res) {
+    final data = res.data;
+    if (data == null || data == '') {
       return {};
     }
-    final decoded = jsonDecode(raw);
-    if (decoded is! Map<String, dynamic>) {
-      throw AuthApiException('Unexpected response', res.statusCode);
+    if (data is Map<String, dynamic>) {
+      return data;
     }
-    return decoded;
+    if (data is Map) {
+      return Map<String, dynamic>.from(data);
+    }
+    if (data is String) {
+      final decoded = jsonDecode(data);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
+      if (decoded is Map) {
+        return Map<String, dynamic>.from(decoded);
+      }
+    }
+    throw AuthApiException('Unexpected response', res.statusCode ?? 0);
   }
 
-  void _throwIfError(http.Response res, Map<String, dynamic> map) {
-    if (res.statusCode >= 200 && res.statusCode < 300) {
+  void _throwIfError(int? statusCode, Map<String, dynamic> map) {
+    if (statusCode != null && statusCode >= 200 && statusCode < 300) {
       return;
     }
     final err = map['error']?.toString() ?? map['detail']?.toString() ?? 'error';
     final desc = map['error_description']?.toString();
     throw AuthApiException(
       desc != null ? '$err: $desc' : err,
-      res.statusCode,
+      statusCode ?? 0,
     );
   }
 
@@ -40,39 +55,57 @@ class AuthApi {
     String path,
     Map<String, dynamic> body,
   ) async {
-    final res = await _http.post(
-      _u(path),
-      headers: {'Content-Type': 'application/json; charset=utf-8'},
-      body: jsonEncode(body),
-    );
-    final map = _decodeJsonMap(res);
-    _throwIfError(res, map);
-    return map;
+    try {
+      final res = await _dio.post<dynamic>(
+        path,
+        data: body,
+        options: Options(
+          contentType: Headers.jsonContentType,
+          headers: {'Content-Type': 'application/json; charset=utf-8'},
+        ),
+      );
+      final map = _decodeSuccess(res);
+      _throwIfError(res.statusCode, map);
+      return map;
+    } on DioException catch (e) {
+      throw authApiExceptionFromDio(e);
+    }
   }
 
   Future<Map<String, dynamic>> getUserInfo(String accessToken) async {
-    final res = await _http.get(
-      _u('/oauth/userinfo'),
-      headers: {'Authorization': 'Bearer $accessToken'},
-    );
-    final map = _decodeJsonMap(res);
-    _throwIfError(res, map);
-    return map;
+    try {
+      final res = await _dio.get<dynamic>(
+        '/oauth/userinfo',
+        options: Options(
+          headers: {'Authorization': 'Bearer $accessToken'},
+        ),
+      );
+      final map = _decodeSuccess(res);
+      _throwIfError(res.statusCode, map);
+      return map;
+    } on DioException catch (e) {
+      throw authApiExceptionFromDio(e);
+    }
   }
 
   /// OAuth2 form body (same as `curl -d grant_type=refresh_token ...`).
   Future<Map<String, dynamic>> refreshWithRefreshToken(String refreshToken) async {
-    final res = await _http.post(
-      _u('/oauth/token'),
-      body: {
-        'grant_type': 'refresh_token',
-        'refresh_token': refreshToken,
-        'client_id': AppConfig.oauthPublicClientId,
-      },
-    );
-    final map = _decodeJsonMap(res);
-    _throwIfError(res, map);
-    return map;
+    try {
+      final res = await _dio.post<dynamic>(
+        '/oauth/token',
+        data: {
+          'grant_type': 'refresh_token',
+          'refresh_token': refreshToken,
+          'client_id': AppConfig.oauthPublicClientId,
+        },
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+      );
+      final map = _decodeSuccess(res);
+      _throwIfError(res.statusCode, map);
+      return map;
+    } on DioException catch (e) {
+      throw authApiExceptionFromDio(e);
+    }
   }
 
   Future<Map<String, dynamic>> loginWithGoogleIdToken(String idToken) {
@@ -89,15 +122,9 @@ class AuthApi {
     });
   }
 
-  void dispose() => _http.close();
-}
-
-class AuthApiException implements Exception {
-  AuthApiException(this.message, this.statusCode);
-
-  final String message;
-  final int statusCode;
-
-  @override
-  String toString() => 'AuthApiException($statusCode): $message';
+  void dispose() {
+    if (_ownsDio) {
+      _dio.close();
+    }
+  }
 }
