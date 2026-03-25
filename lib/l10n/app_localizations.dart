@@ -236,6 +236,30 @@ abstract class AppLocalizations {
   /// **'Your items will appear after commerce backend integration (issue #7).'**
   String get cartEmptyBody;
 
+  /// No description provided for @catalogAwaitingApiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog service is up'**
+  String get catalogAwaitingApiTitle;
+
+  /// No description provided for @catalogAwaitingApiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Storefront product list is not wired yet. Products will appear here when GET /api/v1/products exists on the catalog service.'**
+  String get catalogAwaitingApiBody;
+
+  /// No description provided for @cartAwaitingApiTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Commerce service is up'**
+  String get cartAwaitingApiTitle;
+
+  /// No description provided for @cartAwaitingApiBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Storefront cart API is not wired yet. Your cart will appear when the commerce service exposes cart endpoints.'**
+  String get cartAwaitingApiBody;
+
   /// No description provided for @authTitle.
   ///
   /// In en, this message translates to:

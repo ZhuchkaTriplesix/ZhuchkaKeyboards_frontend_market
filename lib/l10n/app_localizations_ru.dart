@@ -82,6 +82,20 @@ class AppLocalizationsRu extends AppLocalizations {
       'Список позиций появится после интеграции commerce backend (issue #7).';
 
   @override
+  String get catalogAwaitingApiTitle => 'Сервис каталога доступен';
+
+  @override
+  String get catalogAwaitingApiBody =>
+      'Список товаров для витрины ещё не подключён. Продукты появятся здесь, когда в catalog-service будет GET /api/v1/products.';
+
+  @override
+  String get cartAwaitingApiTitle => 'Сервис commerce доступен';
+
+  @override
+  String get cartAwaitingApiBody =>
+      'API корзины для витрины ещё не подключён. Корзина появится, когда commerce-service отдаст нужные эндпоинты.';
+
+  @override
   String get authTitle => 'Вход';
 
   @override

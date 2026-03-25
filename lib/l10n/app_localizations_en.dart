@@ -82,6 +82,20 @@ class AppLocalizationsEn extends AppLocalizations {
       'Your items will appear after commerce backend integration (issue #7).';
 
   @override
+  String get catalogAwaitingApiTitle => 'Catalog service is up';
+
+  @override
+  String get catalogAwaitingApiBody =>
+      'Storefront product list is not wired yet. Products will appear here when GET /api/v1/products exists on the catalog service.';
+
+  @override
+  String get cartAwaitingApiTitle => 'Commerce service is up';
+
+  @override
+  String get cartAwaitingApiBody =>
+      'Storefront cart API is not wired yet. Your cart will appear when the commerce service exposes cart endpoints.';
+
+  @override
   String get authTitle => 'Sign in';
 
   @override
