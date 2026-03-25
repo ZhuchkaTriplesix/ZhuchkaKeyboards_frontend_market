@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 /// Full-screen or in-body loading indicator with optional caption (M3, accessible).
 class MarketLoadingView extends StatelessWidget {
   const MarketLoadingView({
@@ -11,10 +13,11 @@ class MarketLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final textTheme = Theme.of(context).textTheme;
     return Center(
       child: Semantics(
-        label: message ?? 'Загрузка',
+        label: message ?? l10n.loadingDefaultSemantics,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
@@ -106,18 +109,20 @@ class MarketErrorView extends StatelessWidget {
   const MarketErrorView({
     required this.message,
     this.onRetry,
-    this.retryLabel = 'Повторить',
+    this.retryLabel,
     super.key,
   });
 
   final String message;
   final VoidCallback? onRetry;
-  final String retryLabel;
+  final String? retryLabel;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final resolvedRetry = retryLabel ?? l10n.errorRetry;
 
     return Center(
       child: ConstrainedBox(
@@ -126,7 +131,7 @@ class MarketErrorView extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Semantics(
             container: true,
-            label: 'Ошибка. $message',
+            label: l10n.errorSemanticsLabel(message),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
@@ -134,7 +139,7 @@ class MarketErrorView extends StatelessWidget {
                 Icon(Icons.error_outline, size: 56, color: colorScheme.error),
                 const SizedBox(height: 16),
                 Text(
-                  'Что-то пошло не так',
+                  l10n.errorGenericTitle,
                   style: textTheme.titleLarge,
                   textAlign: TextAlign.center,
                 ),
@@ -148,7 +153,7 @@ class MarketErrorView extends StatelessWidget {
                   const SizedBox(height: 24),
                   FilledButton.tonal(
                     onPressed: onRetry,
-                    child: Text(retryLabel),
+                    child: Text(resolvedRetry),
                   ),
                 ],
               ],

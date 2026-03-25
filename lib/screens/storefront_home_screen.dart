@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../auth/auth_session.dart';
 import '../auth/session_store.dart';
+import '../l10n/app_localizations.dart';
 import '../widgets/auth_modal.dart';
 import '../widgets/market_async_views.dart';
 
@@ -61,31 +62,32 @@ class _StorefrontHomeState extends State<StorefrontHome> {
       _userEmail = null;
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Вы вышли из аккаунта')),
+      SnackBar(content: Text(AppLocalizations.of(context).snackSignedOut)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (!_ready) {
-      return const Scaffold(
-        body: MarketLoadingView(message: 'Загрузка сессии…'),
+      return Scaffold(
+        body: MarketLoadingView(message: l10n.loadingSession),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Zhuchka Market'),
+        title: Text(l10n.appTitle),
         actions: [
           if (_loggedIn)
             TextButton(
               onPressed: _logout,
-              child: const Text('Выйти'),
+              child: Text(l10n.actionSignOut),
             )
           else
             TextButton(
               onPressed: _openAuth,
-              child: const Text('Войти'),
+              child: Text(l10n.actionSignIn),
             ),
           const SizedBox(width: 8),
         ],
@@ -99,7 +101,7 @@ class _StorefrontHomeState extends State<StorefrontHome> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Витрина для покупателей',
+                  l10n.storefrontHeadline,
                   style: Theme.of(context).textTheme.headlineMedium,
                   textAlign: TextAlign.center,
                 ),
@@ -113,9 +115,7 @@ class _StorefrontHomeState extends State<StorefrontHome> {
                 ],
                 const SizedBox(height: 12),
                 Text(
-                  _loggedIn
-                      ? 'Сессия: токены в локальном хранилище; профиль с auth-сервера (userinfo).'
-                      : 'Нажмите «Войти» — модальное окно. Google и Telegram при настройке auth.',
+                  _loggedIn ? l10n.storefrontHintLoggedIn : l10n.storefrontHintGuest,
                   style: Theme.of(context).textTheme.bodyLarge,
                   textAlign: TextAlign.center,
                 ),
@@ -124,7 +124,7 @@ class _StorefrontHomeState extends State<StorefrontHome> {
                   FilledButton.icon(
                     onPressed: _openAuth,
                     icon: const Icon(Icons.login),
-                    label: const Text('Войти или зарегистрироваться'),
+                    label: Text(l10n.storefrontLoginCta),
                   ),
               ],
             ),

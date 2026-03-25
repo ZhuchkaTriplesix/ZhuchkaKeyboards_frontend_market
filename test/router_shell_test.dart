@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,7 +9,7 @@ void main() {
   SharedPreferences.setMockInitialValues({});
 
   testWidgets('shell NavigationBar opens catalog placeholder', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
     expect(find.text('Витрина для покупателей'), findsOneWidget);
 
@@ -24,7 +25,7 @@ void main() {
   });
 
   testWidgets('shell NavigationBar opens cart placeholder', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Корзина'));
@@ -39,7 +40,7 @@ void main() {
   });
 
   testWidgets('shell returns to home from catalog', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Каталог'));
     await tester.pumpAndSettle();

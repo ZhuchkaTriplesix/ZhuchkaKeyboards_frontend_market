@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,7 +9,7 @@ void main() {
   SharedPreferences.setMockInitialValues({});
 
   testWidgets('bottom nav exposes tooltips for screen readers', (tester) async {
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
 
     expect(find.byTooltip('Витрина — главная страница'), findsOneWidget);
