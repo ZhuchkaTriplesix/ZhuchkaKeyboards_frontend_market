@@ -12,6 +12,8 @@ Storefront UI. This repo targets **web only** (no mobile/desktop platforms in th
 
 **Доступность:** подсказки у пунктов нижней навигации (`MarketShell`), семантика модального входа (`auth_modal.dart`: заголовок, `liveRegion` для ошибок, `barrierLabel`), ограничение масштаба текста в `MaterialApp.router` builder (0.85–2.5) — см. `docs/frontend-requirements.md` §6.
 
+**Локализация:** шаблоны в `lib/l10n/app_en.arb` и `app_ru.arb`; кодогенерация через `flutter gen-l10n` (в `pubspec.yaml` задано `generate: true`). По умолчанию интерфейс на **русском**; если в списке локалей браузера есть английский, выбирается **английский** (`localeListResolutionCallback` в `lib/main.dart`). После правок ARB перегенерируйте: `flutter gen-l10n`.
+
 ## Configuration (build-time)
 
 Переменные задаются через `--dart-define` (и при `flutter build web`):
