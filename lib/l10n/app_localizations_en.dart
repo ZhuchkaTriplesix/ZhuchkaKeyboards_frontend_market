@@ -36,18 +36,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loadingDefaultSemantics => 'Loading';
 
   @override
-  String get storefrontHeadline => 'Storefront for shoppers';
+  String get storefrontHeadline => 'Zhuchka Keyboards';
+
+  @override
+  String get storefrontTagline =>
+      'Keyboards, cases, and parts. Built for desktop browsers and phones.';
 
   @override
   String get storefrontHintLoggedIn =>
-      'Session: tokens in local storage; profile from auth (userinfo).';
+      'You\'re signed in. Your profile comes from the auth service.';
 
   @override
   String get storefrontHintGuest =>
-      'Tap Sign in — modal dialog. Google and Telegram when auth is configured.';
+      'Sign in with Google or Telegram for cart and orders.';
+
+  @override
+  String get storefrontFeatureCatalogTitle => 'Catalog';
+
+  @override
+  String get storefrontFeatureCatalogBody =>
+      'Products and builds will show here once the catalog API is wired.';
+
+  @override
+  String get storefrontFeatureCartTitle => 'Cart';
+
+  @override
+  String get storefrontFeatureCartBody =>
+      'Line items and checkout will use the commerce service.';
+
+  @override
+  String get storefrontFeatureAccountTitle => 'Account';
+
+  @override
+  String get storefrontFeatureAccountBody =>
+      'Google or Telegram sign-in via Zhuchka Auth.';
+
+  @override
+  String get storefrontFeatureCta => 'Open';
 
   @override
   String get storefrontLoginCta => 'Sign in or register';
+
+  @override
+  String get storefrontSignedInChip => 'Signed in';
+
+  @override
+  String get storefrontSignedInFallback => 'You\'re signed in';
 
   @override
   String get actionSignIn => 'Sign in';
@@ -121,6 +155,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get authErrorTelegramBot =>
       'Set TELEGRAM_BOT_USERNAME (--dart-define).';
+
+  @override
+  String get authTelegramWidgetHint =>
+      'If the button does not appear, check the domain in @BotFather (/setdomain) and TELEGRAM_BOT_TOKEN on the auth server.';
 
   @override
   String get authErrorNoIdToken =>

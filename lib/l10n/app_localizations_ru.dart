@@ -36,18 +36,52 @@ class AppLocalizationsRu extends AppLocalizations {
   String get loadingDefaultSemantics => 'Загрузка';
 
   @override
-  String get storefrontHeadline => 'Витрина для покупателей';
+  String get storefrontHeadline => 'Zhuchka Keyboards';
+
+  @override
+  String get storefrontTagline =>
+      'Клавиатуры, корпуса и комплектующие. Витрина для браузера и телефона.';
 
   @override
   String get storefrontHintLoggedIn =>
-      'Сессия: токены в локальном хранилище; профиль с auth-сервера (userinfo).';
+      'Сессия сохранена. Профиль подтягивается с сервера авторизации.';
 
   @override
   String get storefrontHintGuest =>
-      'Нажмите «Войти» — модальное окно. Google и Telegram при настройке auth.';
+      'Войдите через Google или Telegram — так удобнее с корзиной и заказами.';
+
+  @override
+  String get storefrontFeatureCatalogTitle => 'Каталог';
+
+  @override
+  String get storefrontFeatureCatalogBody =>
+      'Товары и конфигурации появятся здесь после подключения catalog API.';
+
+  @override
+  String get storefrontFeatureCartTitle => 'Корзина';
+
+  @override
+  String get storefrontFeatureCartBody =>
+      'Список позиций и оформление — через commerce-сервис.';
+
+  @override
+  String get storefrontFeatureAccountTitle => 'Аккаунт';
+
+  @override
+  String get storefrontFeatureAccountBody =>
+      'Единый вход: Google или Telegram, бэкенд Zhuchka Auth.';
+
+  @override
+  String get storefrontFeatureCta => 'Открыть';
 
   @override
   String get storefrontLoginCta => 'Войти или зарегистрироваться';
+
+  @override
+  String get storefrontSignedInChip => 'Вошли';
+
+  @override
+  String get storefrontSignedInFallback => 'Вы вошли в аккаунт';
 
   @override
   String get actionSignIn => 'Войти';
@@ -121,6 +155,10 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get authErrorTelegramBot =>
       'Задайте TELEGRAM_BOT_USERNAME (--dart-define).';
+
+  @override
+  String get authTelegramWidgetHint =>
+      'Если кнопка не появляется, проверьте домен в @BotFather (/setdomain) и TELEGRAM_BOT_TOKEN на сервере auth.';
 
   @override
   String get authErrorNoIdToken =>

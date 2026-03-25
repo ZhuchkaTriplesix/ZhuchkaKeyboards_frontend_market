@@ -155,26 +155,86 @@ abstract class AppLocalizations {
   /// No description provided for @storefrontHeadline.
   ///
   /// In en, this message translates to:
-  /// **'Storefront for shoppers'**
+  /// **'Zhuchka Keyboards'**
   String get storefrontHeadline;
+
+  /// No description provided for @storefrontTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Keyboards, cases, and parts. Built for desktop browsers and phones.'**
+  String get storefrontTagline;
 
   /// No description provided for @storefrontHintLoggedIn.
   ///
   /// In en, this message translates to:
-  /// **'Session: tokens in local storage; profile from auth (userinfo).'**
+  /// **'You\'re signed in. Your profile comes from the auth service.'**
   String get storefrontHintLoggedIn;
 
   /// No description provided for @storefrontHintGuest.
   ///
   /// In en, this message translates to:
-  /// **'Tap Sign in — modal dialog. Google and Telegram when auth is configured.'**
+  /// **'Sign in with Google or Telegram for cart and orders.'**
   String get storefrontHintGuest;
+
+  /// No description provided for @storefrontFeatureCatalogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Catalog'**
+  String get storefrontFeatureCatalogTitle;
+
+  /// No description provided for @storefrontFeatureCatalogBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Products and builds will show here once the catalog API is wired.'**
+  String get storefrontFeatureCatalogBody;
+
+  /// No description provided for @storefrontFeatureCartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cart'**
+  String get storefrontFeatureCartTitle;
+
+  /// No description provided for @storefrontFeatureCartBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Line items and checkout will use the commerce service.'**
+  String get storefrontFeatureCartBody;
+
+  /// No description provided for @storefrontFeatureAccountTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get storefrontFeatureAccountTitle;
+
+  /// No description provided for @storefrontFeatureAccountBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Google or Telegram sign-in via Zhuchka Auth.'**
+  String get storefrontFeatureAccountBody;
+
+  /// No description provided for @storefrontFeatureCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get storefrontFeatureCta;
 
   /// No description provided for @storefrontLoginCta.
   ///
   /// In en, this message translates to:
   /// **'Sign in or register'**
   String get storefrontLoginCta;
+
+  /// No description provided for @storefrontSignedInChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in'**
+  String get storefrontSignedInChip;
+
+  /// No description provided for @storefrontSignedInFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re signed in'**
+  String get storefrontSignedInFallback;
 
   /// No description provided for @actionSignIn.
   ///
@@ -307,6 +367,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Set TELEGRAM_BOT_USERNAME (--dart-define).'**
   String get authErrorTelegramBot;
+
+  /// No description provided for @authTelegramWidgetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'If the button does not appear, check the domain in @BotFather (/setdomain) and TELEGRAM_BOT_TOKEN on the auth server.'**
+  String get authTelegramWidgetHint;
 
   /// No description provided for @authErrorNoIdToken.
   ///

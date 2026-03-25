@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Non-web: Telegram Login widget is not available.
-Future<void> showTelegramLoginDialog(
+/// Non-web: Telegram Login widget is not available. Returns null.
+Future<Map<String, dynamic>?> showTelegramLoginDialog(
   BuildContext context, {
   required String botUsername,
-  required Future<void> Function(Map<String, dynamic> payload) onAuth,
 }) async {
   await showDialog<void>(
     context: context,
@@ -18,4 +17,5 @@ Future<void> showTelegramLoginDialog(
       ],
     ),
   );
+  return null;
 }

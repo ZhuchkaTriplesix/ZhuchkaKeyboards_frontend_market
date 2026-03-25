@@ -1,38 +1,48 @@
-import 'dart:async' show StreamSubscription, unawaited;
+import 'dart:async' show StreamSubscription;
 import 'dart:convert';
 import 'dart:ui_web' as ui_web;
 
 import 'package:flutter/material.dart';
 
+import '../l10n/app_localizations.dart';
+
 // ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
 
-/// Web: Telegram Login embed (iframe) + [window.onMessage] for auth payload.
-Future<void> showTelegramLoginDialog(
+const _callbackScriptId = 'zhuchka-tg-callback';
+
+/// Inject global JS callback once per page load.
+/// When Telegram widget calls `_zhuchkaTgAuth(user)`, it serialises the user
+/// object to JSON and posts it to self via `postMessage` so Dart can pick it up.
+void _ensureTelegramCallback() {
+  if (html.document.getElementById(_callbackScriptId) != null) return;
+  final script = html.ScriptElement()
+    ..id = _callbackScriptId
+    ..text = r'''
+function _zhuchkaTgAuth(user) {
+  window.postMessage(JSON.stringify(Object.assign({_tg:1},user)), '*');
+}
+''';
+  html.document.head?.append(script);
+}
+
+/// Shows Telegram Login Widget (official `telegram-widget.js` with JS
+/// callback) inside a Material 3 dialog. Returns auth payload or `null`.
+Future<Map<String, dynamic>?> showTelegramLoginDialog(
   BuildContext context, {
   required String botUsername,
-  required Future<void> Function(Map<String, dynamic> payload) onAuth,
 }) async {
-  await showDialog<void>(
+  _ensureTelegramCallback();
+  return showDialog<Map<String, dynamic>>(
     context: context,
     barrierDismissible: true,
-    builder: (ctx) {
-      return _TelegramDialog(
-        botUsername: botUsername,
-        onAuth: onAuth,
-      );
-    },
+    builder: (ctx) => _TelegramDialog(botUsername: botUsername),
   );
 }
 
 class _TelegramDialog extends StatefulWidget {
-  const _TelegramDialog({
-    required this.botUsername,
-    required this.onAuth,
-  });
-
+  const _TelegramDialog({required this.botUsername});
   final String botUsername;
-  final Future<void> Function(Map<String, dynamic> payload) onAuth;
 
   @override
   State<_TelegramDialog> createState() => _TelegramDialogState();
@@ -40,43 +50,59 @@ class _TelegramDialog extends StatefulWidget {
 
 class _TelegramDialogState extends State<_TelegramDialog> {
   static int _seq = 0;
-  late final String _viewType = 'telegram-login-${_seq++}';
+  late final String _viewType = 'tg-widget-${_seq++}';
   StreamSubscription<html.MessageEvent>? _sub;
 
   @override
   void initState() {
     super.initState();
-    final origin = html.window.location.origin;
-    final src =
-        'https://oauth.telegram.org/embed/${widget.botUsername}?origin=${Uri.encodeComponent(origin)}&size=large&request_access=write';
+
     // ignore: undefined_prefixed_name
     ui_web.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
-      final iframe = html.IFrameElement()
-        ..src = src
-        ..style.border = 'none'
+      final container = html.DivElement()
         ..style.width = '100%'
-        ..style.height = '100%';
-      return iframe;
+        ..style.height = '100%'
+        ..style.display = 'flex'
+        ..style.justifyContent = 'center'
+        ..style.alignItems = 'center';
+
+      final script = html.ScriptElement()
+        ..async = true
+        ..src = 'https://telegram.org/js/telegram-widget.js?22';
+      script.setAttribute('data-telegram-login', widget.botUsername);
+      script.setAttribute('data-size', 'large');
+      script.setAttribute('data-onauth', '_zhuchkaTgAuth(user)');
+      script.setAttribute('data-request-access', 'write');
+      container.append(script);
+
+      return container;
     });
 
-    _sub = html.window.onMessage.listen((event) {
-      final data = event.data;
-      Map<String, dynamic>? map;
-      if (data is String) {
-        try {
-          final decoded = jsonDecode(data);
-          if (decoded is Map<String, dynamic>) map = decoded;
-        } catch (_) {
-          return;
+    _sub = html.window.onMessage.listen(_onMessage);
+  }
+
+  void _onMessage(html.MessageEvent event) {
+    final data = event.data;
+    Map<String, dynamic>? map;
+    if (data is String) {
+      try {
+        final decoded = jsonDecode(data);
+        if (decoded is Map<String, dynamic>) {
+          map = decoded;
+        } else if (decoded is Map) {
+          map = Map<String, dynamic>.from(decoded);
         }
-      } else if (data is Map) {
-        map = Map<String, dynamic>.from(data);
+      } catch (_) {
+        return;
       }
-      if (map == null) return;
-      if (!map.containsKey('hash') || !map.containsKey('id')) return;
-      if (mounted) Navigator.of(context).pop();
-      unawaited(widget.onAuth(map));
-    });
+    } else if (data is Map) {
+      map = Map<String, dynamic>.from(data);
+    }
+    if (map == null || map['_tg'] != 1) return;
+    map.remove('_tg');
+    if (!map.containsKey('hash') || !map.containsKey('id')) return;
+    debugPrint('[TelegramLogin] auth payload received, id=${map['id']}');
+    if (mounted) Navigator.of(context).pop(map);
   }
 
   @override
@@ -87,39 +113,83 @@ class _TelegramDialogState extends State<_TelegramDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final l10n = AppLocalizations.of(context);
+    final narrow = MediaQuery.sizeOf(context).width < 600;
+    final inset = narrow
+        ? const EdgeInsets.symmetric(horizontal: 16, vertical: 24)
+        : const EdgeInsets.symmetric(horizontal: 40, vertical: 48);
+    const telegramBlue = Color(0xFF229ED9);
+
     return Dialog(
+      insetPadding: inset,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+      clipBehavior: Clip.antiAlias,
+      backgroundColor: cs.surface,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400, maxHeight: 480),
+        constraints: const BoxConstraints(maxWidth: 380),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
+            // Header
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(24, 24, 8, 20),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    telegramBlue.withValues(alpha: 0.12),
+                    cs.surface,
+                  ],
+                ),
+              ),
               child: Row(
                 children: [
-                  const Expanded(
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: telegramBlue,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.telegram, color: Colors.white, size: 28),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
                     child: Text(
                       'Telegram',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                   IconButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.close_rounded),
+                    tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
                   ),
                 ],
               ),
             ),
-            const Divider(height: 1),
+
+            // Widget area
             SizedBox(
-              height: 360,
+              height: 80,
               child: HtmlElementView(viewType: _viewType),
             ),
-            const Padding(
-              padding: EdgeInsets.all(12),
+
+            // Hint
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
               child: Text(
-                'Если окно пустое, проверьте домен в @BotFather (/setdomain) и TELEGRAM_BOT_TOKEN на сервере auth.',
-                style: TextStyle(fontSize: 12),
+                l10n.authTelegramWidgetHint,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: cs.onSurfaceVariant,
+                  height: 1.4,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),

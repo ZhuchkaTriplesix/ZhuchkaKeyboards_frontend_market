@@ -37,11 +37,16 @@ class _AuthDialogState extends State<_AuthDialog> {
   }
 
   Future<void> _finishWithTokens(Map<String, dynamic> tokens) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppLocalizations.of(context);
     await SessionStore.saveOAuthTokens(tokens);
     if (!mounted) return;
     Navigator.of(context).pop(true);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).snackSignedIn)),
+    messenger.showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(l10n.snackSignedIn),
+      ),
     );
   }
 
@@ -86,17 +91,27 @@ class _AuthDialogState extends State<_AuthDialog> {
     }
   }
 
-  Future<void> _onTelegramPayload(Map<String, dynamic> payload) async {
+  Future<void> _openTelegram() async {
+    final bot = AppConfig.telegramBotUsername.trim();
+    if (bot.isEmpty) {
+      setState(() => _error = AppLocalizations.of(context).authErrorTelegramBot);
+      return;
+    }
+    final payload = await showTelegramLoginDialog(context, botUsername: bot);
+    if (payload == null || !mounted) return;
+    debugPrint('[AuthModal] Telegram payload received, sending to auth…');
     setState(() {
       _busy = true;
       _error = null;
     });
     try {
       final tokens = await _api.loginWithTelegram(payload);
+      if (!mounted) return;
       setState(() => _busy = false);
       await _finishWithTokens(tokens);
     } catch (e, st) {
-      debugPrint('$e\n$st');
+      debugPrint('[AuthModal] loginWithTelegram error: $e\n$st');
+      if (!mounted) return;
       setState(() {
         _busy = false;
         _error = e.toString();
@@ -104,108 +119,157 @@ class _AuthDialogState extends State<_AuthDialog> {
     }
   }
 
-  Future<void> _openTelegram() async {
-    final bot = AppConfig.telegramBotUsername.trim();
-    if (bot.isEmpty) {
-      setState(() => _error = AppLocalizations.of(context).authErrorTelegramBot);
-      return;
-    }
-    await showTelegramLoginDialog(
-      context,
-      botUsername: bot,
-      onAuth: _onTelegramPayload,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
 
+    final narrow = MediaQuery.sizeOf(context).width < 600;
+    final inset = narrow
+        ? const EdgeInsets.symmetric(horizontal: 12, vertical: 24)
+        : const EdgeInsets.symmetric(horizontal: 40, vertical: 48);
+
+    final cs = theme.colorScheme;
+
     return Semantics(
       namesRoute: true,
       label: l10n.authTitle,
       child: Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: inset,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        clipBehavior: Clip.antiAlias,
+        backgroundColor: cs.surfaceContainerHigh,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Semantics(
-                    header: true,
-                    child: Text(l10n.authTitle, style: theme.textTheme.headlineSmall),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.authSubtitle,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        cs.primaryContainer.withValues(alpha: 0.5),
+                        cs.surfaceContainerHigh,
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  if (_error != null) ...[
-                    Semantics(
-                      liveRegion: true,
-                      container: true,
-                      child: Material(
-                        color: theme.colorScheme.errorContainer,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(
-                            _error!,
-                            style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      CircleAvatar(
+                        radius: 26,
+                        backgroundColor: cs.secondaryContainer,
+                        child: Icon(Icons.lock_rounded, color: cs.onSecondaryContainer, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.authTitle,
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              l10n.authSubtitle,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: cs.onSurfaceVariant,
+                                height: 1.35,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (_error != null) ...[
+                        Semantics(
+                          liveRegion: true,
+                          container: true,
+                          child: Material(
+                            color: cs.errorContainer,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(14),
+                              child: Text(
+                                _error!,
+                                style: TextStyle(
+                                  color: cs.onErrorContainer,
+                                  height: 1.35,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                      FilledButton.icon(
+                        onPressed: _busy ? null : _onGoogle,
+                        icon: const Icon(Icons.login_rounded, size: 22),
+                        label: Text(l10n.authContinueGoogle),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: cs.surface,
+                          foregroundColor: cs.onSurface,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          side: BorderSide(color: cs.outlineVariant),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                FilledButton.icon(
-                  onPressed: _busy ? null : _onGoogle,
-                  icon: const Icon(Icons.login, size: 22),
-                  label: Text(l10n.authContinueGoogle),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF1F1F1F),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    side: const BorderSide(color: Color(0xFFDADCE0)),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: _busy ? null : _openTelegram,
-                  icon: const Icon(Icons.send, size: 22),
-                  label: Text(l10n.authContinueTelegram),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFF229ED9),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                if (_busy)
-                  Semantics(
-                    label: l10n.authBusySemantics,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: _busy ? null : () => Navigator.of(context).pop(),
-                    child: Text(l10n.authClose),
+                      const SizedBox(height: 10),
+                      FilledButton.icon(
+                        onPressed: _busy ? null : _openTelegram,
+                        icon: const Icon(Icons.telegram, size: 22),
+                        label: Text(l10n.authContinueTelegram),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: const Color(0xFF229ED9),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      if (_busy)
+                        Semantics(
+                          label: l10n.authBusySemantics,
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(vertical: 8),
+                              child: CircularProgressIndicator(),
+                            ),
+                          ),
+                        ),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: _busy ? null : () => Navigator.of(context).pop(),
+                          child: Text(l10n.authClose),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           ),
         ),
-      ),
       ),
     );
   }

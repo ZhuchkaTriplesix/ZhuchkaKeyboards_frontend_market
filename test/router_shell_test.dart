@@ -8,12 +8,22 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   SharedPreferences.setMockInitialValues({});
 
+  /// Avoid tapping feature cards on home that reuse the same labels as the bottom bar.
+  Future<void> tapBottomNav(WidgetTester tester, String label) async {
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text(label),
+      ),
+    );
+  }
+
   testWidgets('shell NavigationBar opens catalog placeholder', (tester) async {
     await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
-    expect(find.text('Витрина для покупателей'), findsOneWidget);
+    expect(find.text('Zhuchka Keyboards'), findsOneWidget);
 
-    await tester.tap(find.text('Каталог'));
+    await tapBottomNav(tester, 'Каталог');
     await tester.pumpAndSettle();
 
     expect(find.text('Каталог'), findsWidgets);
@@ -28,7 +38,7 @@ void main() {
     await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Корзина'));
+    await tapBottomNav(tester, 'Корзина');
     await tester.pumpAndSettle();
 
     expect(find.text('Корзина'), findsWidgets);
@@ -42,10 +52,10 @@ void main() {
   testWidgets('shell returns to home from catalog', (tester) async {
     await tester.pumpWidget(const MyApp(debugLocale: Locale('ru')));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Каталог'));
+    await tapBottomNav(tester, 'Каталог');
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Главная'));
+    await tapBottomNav(tester, 'Главная');
     await tester.pumpAndSettle();
-    expect(find.text('Витрина для покупателей'), findsOneWidget);
+    expect(find.text('Zhuchka Keyboards'), findsOneWidget);
   });
 }

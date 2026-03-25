@@ -62,10 +62,11 @@ class MarketEmptyView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final maxW = MediaQuery.sizeOf(context).width >= 840 ? 520.0 : 400.0;
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: BoxConstraints(maxWidth: maxW),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Semantics(
@@ -123,10 +124,11 @@ class MarketErrorView extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final resolvedRetry = retryLabel ?? l10n.errorRetry;
+    final maxW = MediaQuery.sizeOf(context).width >= 840 ? 520.0 : 400.0;
 
     return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: BoxConstraints(maxWidth: maxW),
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Semantics(

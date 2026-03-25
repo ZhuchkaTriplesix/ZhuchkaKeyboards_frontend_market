@@ -116,10 +116,25 @@ class AuthApi {
   }
 
   Future<Map<String, dynamic>> loginWithTelegram(Map<String, dynamic> telegramPayload) {
-    return postJson('/oauth/federated/telegram', {
+    final body = <String, dynamic>{
       'client_id': AppConfig.oauthPublicClientId,
-      ...telegramPayload,
-    });
+      ..._normalizeTelegramWidgetNumbers(telegramPayload),
+    };
+    return postJson('/oauth/federated/telegram', body);
+  }
+
+  /// JS postMessage / JSON may deliver numeric fields as doubles; auth expects JSON integers.
+  static Map<String, dynamic> _normalizeTelegramWidgetNumbers(Map<String, dynamic> raw) {
+    final m = Map<String, dynamic>.from(raw);
+    final id = m['id'];
+    if (id is num) {
+      m['id'] = id.toInt();
+    }
+    final authDate = m['auth_date'];
+    if (authDate is num) {
+      m['auth_date'] = authDate.toInt();
+    }
+    return m;
   }
 
   void dispose() {

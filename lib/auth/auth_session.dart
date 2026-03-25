@@ -9,6 +9,19 @@ class UserProfile {
 
   final String sub;
   final String? email;
+
+  /// Line for UI: real email, or friendly label for Telegram synthetic email from auth.
+  String? get displayAccountLine {
+    final e = email?.trim();
+    if (e == null || e.isEmpty) {
+      return sub.isNotEmpty ? sub : null;
+    }
+    final tg = RegExp(r'^tg\.(\d+)@telegram\.federated\.zhuchka$').firstMatch(e);
+    if (tg != null) {
+      return 'Telegram · ${tg.group(1)}';
+    }
+    return e;
+  }
 }
 
 /// Loads userinfo; on 401 tries `refresh_token` grant then retries once.
