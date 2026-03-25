@@ -16,8 +16,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Каталог'), findsWidgets);
+    expect(find.text('Каталог скоро здесь'), findsOneWidget);
     expect(
-      find.text('Раздел каталога — заглушка до подключения backend.'),
+      find.textContaining('backend API'),
       findsOneWidget,
     );
   });
@@ -30,8 +31,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Корзина'), findsWidgets);
+    expect(find.text('Корзина пуста'), findsOneWidget);
     expect(
-      find.textContaining('Корзина — заглушка'),
+      find.textContaining('commerce backend'),
       findsOneWidget,
     );
   });
