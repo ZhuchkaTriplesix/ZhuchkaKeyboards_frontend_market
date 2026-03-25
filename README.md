@@ -4,6 +4,8 @@ Storefront UI. This repo targets **web only** (no mobile/desktop platforms in th
 
 **UI spec:** [`docs/frontend-requirements.md`](https://github.com/ZhuchkaTriplesix/ZhuchkaKeyboards/blob/dev/docs/frontend-requirements.md) in the monorepo — Material 3, OLED scaffold `#000000`, shared tokens in `lib/theme/market_theme.dart` (`buildZhuchkaMarketTheme()`).
 
+**Routing:** [`go_router`](https://pub.dev/packages/go_router) + shell (`lib/widgets/market_shell.dart`). Paths: `/` (витрина), `/catalog` и `/cart` — заглушки до backend (см. issue #7).
+
 ## Configuration (build-time)
 
 Переменные задаются через `--dart-define` (и при `flutter build web`):
