@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/market_async_views.dart';
+
 /// Placeholder until catalog API is wired (issue #7).
 class CatalogPlaceholderScreen extends StatelessWidget {
   const CatalogPlaceholderScreen({super.key});
@@ -10,15 +12,11 @@ class CatalogPlaceholderScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Каталог'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Раздел каталога — заглушка до подключения backend.',
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-        ),
+      body: const MarketEmptyView(
+        icon: Icons.storefront_outlined,
+        title: 'Каталог скоро здесь',
+        message:
+            'Раздел каталога — заглушка до подключения backend API (см. issue #7).',
       ),
     );
   }

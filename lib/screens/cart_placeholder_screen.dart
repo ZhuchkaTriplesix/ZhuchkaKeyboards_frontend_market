@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/market_async_views.dart';
+
 /// Placeholder until cart flow exists (issue #7).
 class CartPlaceholderScreen extends StatelessWidget {
   const CartPlaceholderScreen({super.key});
@@ -10,15 +12,11 @@ class CartPlaceholderScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Корзина'),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            'Корзина — заглушка. Список позиций появится после интеграции commerce.',
-            style: Theme.of(context).textTheme.bodyLarge,
-            textAlign: TextAlign.center,
-          ),
-        ),
+      body: const MarketEmptyView(
+        icon: Icons.shopping_cart_outlined,
+        title: 'Корзина пуста',
+        message:
+            'Список позиций появится после интеграции commerce backend (issue #7).',
       ),
     );
   }
