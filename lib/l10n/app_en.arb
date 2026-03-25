@@ -1,0 +1,47 @@
+{
+  "@@locale": "en",
+  "appTitle": "Zhuchka Market",
+  "navHome": "Home",
+  "navCatalog": "Catalog",
+  "navCart": "Cart",
+  "navHomeTooltip": "Storefront home",
+  "navCatalogTooltip": "Product catalog",
+  "navCartTooltip": "Shopping cart",
+  "loadingSession": "Loading session…",
+  "loadingDefaultSemantics": "Loading",
+  "storefrontHeadline": "Storefront for shoppers",
+  "storefrontHintLoggedIn": "Session: tokens in local storage; profile from auth (userinfo).",
+  "storefrontHintGuest": "Tap Sign in — modal dialog. Google and Telegram when auth is configured.",
+  "storefrontLoginCta": "Sign in or register",
+  "actionSignIn": "Sign in",
+  "actionSignOut": "Sign out",
+  "snackSignedOut": "You have signed out",
+  "snackSignedIn": "Signed in",
+  "catalogTitle": "Catalog",
+  "catalogEmptyTitle": "Catalog coming soon",
+  "catalogEmptyBody": "This section is a placeholder until the catalog API is connected (see issue #7).",
+  "cartTitle": "Cart",
+  "cartEmptyTitle": "Cart is empty",
+  "cartEmptyBody": "Your items will appear after commerce backend integration (issue #7).",
+  "authTitle": "Sign in",
+  "authSubtitle": "Sign in with Google or Telegram. Server: Zhuchka Auth (federated).",
+  "authContinueGoogle": "Continue with Google",
+  "authContinueTelegram": "Sign in with Telegram",
+  "authClose": "Close",
+  "authBusySemantics": "Signing in",
+  "authErrorGoogleClientId": "Set GOOGLE_CLIENT_ID for the build (--dart-define).",
+  "authErrorTelegramBot": "Set TELEGRAM_BOT_USERNAME (--dart-define).",
+  "authErrorNoIdToken": "Google did not return id_token (check Web meta / client ID).",
+  "authBarrierDismiss": "Close",
+  "errorGenericTitle": "Something went wrong",
+  "errorSemanticsLabel": "Error. {message}",
+  "@errorSemanticsLabel": {
+    "placeholders": {
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "errorRetry": "Retry",
+  "errorTestNetwork": "Network unavailable"
+}
