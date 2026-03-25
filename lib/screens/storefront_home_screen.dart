@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../auth/auth_session.dart';
 import '../auth/session_store.dart';
 import '../widgets/auth_modal.dart';
+import '../widgets/market_async_views.dart';
 
 /// Home / storefront landing (session, login CTA).
 class StorefrontHome extends StatefulWidget {
@@ -68,7 +69,7 @@ class _StorefrontHomeState extends State<StorefrontHome> {
   Widget build(BuildContext context) {
     if (!_ready) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+        body: MarketLoadingView(message: 'Загрузка сессии…'),
       );
     }
 

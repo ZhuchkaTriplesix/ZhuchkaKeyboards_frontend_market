@@ -8,6 +8,8 @@ Storefront UI. This repo targets **web only** (no mobile/desktop platforms in th
 
 **HTTP:** [`dio`](https://pub.dev/packages/dio) — `createMarketDio()` (`lib/http/market_dio.dart`): таймауты, retry только для **GET** при сетевых сбоях (`RetryInterceptor`), ошибки OAuth → `AuthApiException` (`lib/http/dio_error_mapper.dart`). Прямые вызовы auth API — `AuthApi`.
 
+**Состояния UI (loading / empty / error):** `lib/widgets/market_async_views.dart` — `MarketLoadingView`, `MarketEmptyView`, `MarketErrorView` (см. `docs/frontend-requirements.md` §5).
+
 ## Configuration (build-time)
 
 Переменные задаются через `--dart-define` (и при `flutter build web`):
