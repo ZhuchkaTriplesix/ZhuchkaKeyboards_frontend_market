@@ -23,4 +23,16 @@ class AppConfig {
     'TELEGRAM_BOT_USERNAME',
     defaultValue: '',
   );
+
+  /// Catalog service base URL (e.g. `http://127.0.0.1:8001`). Empty = offline placeholder only.
+  static const String catalogBaseUrl = String.fromEnvironment(
+    'CATALOG_BASE_URL',
+    defaultValue: '',
+  );
+
+  /// Commerce service base URL (e.g. `http://127.0.0.1:8002`). Empty = offline placeholder only.
+  static const String commerceBaseUrl = String.fromEnvironment(
+    'COMMERCE_BASE_URL',
+    defaultValue: '',
+  );
 }
