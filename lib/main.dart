@@ -26,6 +26,20 @@ class _MyAppState extends State<MyApp> {
       themeMode: ThemeMode.dark,
       theme: buildZhuchkaMarketTheme(),
       routerConfig: _router,
+      builder: (context, child) {
+        if (child == null) {
+          return const SizedBox.shrink();
+        }
+        final mq = MediaQuery.of(context);
+        final scaler = mq.textScaler.clamp(
+          minScaleFactor: 0.85,
+          maxScaleFactor: 2.5,
+        );
+        return MediaQuery(
+          data: mq.copyWith(textScaler: scaler),
+          child: child,
+        );
+      },
     );
   }
 }
